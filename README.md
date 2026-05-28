@@ -10,14 +10,14 @@ before touching code.
 
 ## Status
 
-Phase 2 (database schema) — in progress. The schema is in place with a seeded
-rule-pack and integration tests; no parser, categorizer, or routers yet.
+Phase 3 (PDF parser) — in progress. PhonePe deterministic parser with fixture
+tests; categorizer and upload API not wired yet.
 
 | Phase | Doc | Status |
 |------:|------|--------|
 | 1 | [`01-infrastructure-setup.md`](./design/01-infrastructure-setup.md) | done |
-| 2 | [`02-database-schema.md`](./design/02-database-schema.md) | in progress |
-| 3 | [`03-pdf-parser.md`](./design/03-pdf-parser.md) | not started |
+| 2 | [`02-database-schema.md`](./design/02-database-schema.md) | done |
+| 3 | [`03-pdf-parser.md`](./design/03-pdf-parser.md) | in progress |
 | 4 | [`04-categorization-engine.md`](./design/04-categorization-engine.md) | not started |
 | 5 | [`05-backend-api.md`](./design/05-backend-api.md) | not started |
 | 6 | [`06-frontend.md`](./design/06-frontend.md) | not started |
@@ -70,7 +70,14 @@ pnpm dev
 
 ### Running the tests
 
-The non-DB suites (`test_healthz`, `test_config`, `test_normalize`) run with
+The parser suite (`test_pdf_parser`) and other non-DB tests run with no setup:
+
+```bash
+cd backend
+uv run pytest tests/test_pdf_parser.py -q
+```
+
+The remaining non-DB suites (`test_healthz`, `test_config`, `test_normalize`) also run with
 no setup:
 
 ```bash
