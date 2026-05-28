@@ -10,13 +10,13 @@ before touching code.
 
 ## Status
 
-Phase 1 (infrastructure) — in progress. No business logic yet; this repo currently
-boots a Postgres + FastAPI + Vite stack with a health endpoint.
+Phase 2 (database schema) — in progress. The schema is in place with a seeded
+rule-pack and integration tests; no parser, categorizer, or routers yet.
 
 | Phase | Doc | Status |
 |------:|------|--------|
-| 1 | [`01-infrastructure-setup.md`](./design/01-infrastructure-setup.md) | in progress |
-| 2 | [`02-database-schema.md`](./design/02-database-schema.md) | not started |
+| 1 | [`01-infrastructure-setup.md`](./design/01-infrastructure-setup.md) | done |
+| 2 | [`02-database-schema.md`](./design/02-database-schema.md) | in progress |
 | 3 | [`03-pdf-parser.md`](./design/03-pdf-parser.md) | not started |
 | 4 | [`04-categorization-engine.md`](./design/04-categorization-engine.md) | not started |
 | 5 | [`05-backend-api.md`](./design/05-backend-api.md) | not started |
@@ -68,6 +68,33 @@ pnpm install
 pnpm dev
 ```
 
+### Running the tests
+
+The non-DB suites (`test_healthz`, `test_config`, `test_normalize`) run with
+no setup:
+
+```bash
+cd backend
+uv run pytest -k "not test_schema"
+```
+
+The schema integration tests in `tests/test_schema.py` need a reachable
+Postgres. They look for `TEST_DATABASE_URL`, falling back to
+`postgresql+asyncpg://finance_test:finance_test@127.0.0.1:5432/finance_test`.
+If nothing is listening at that URL, the tests are skipped (not failed).
+
+One-time local setup (Ubuntu):
+
+```bash
+sudo apt-get install -y postgresql postgresql-contrib
+sudo pg_ctlcluster 16 main start
+sudo -u postgres psql -c "CREATE USER finance_test WITH PASSWORD 'finance_test' CREATEDB;"
+sudo -u postgres psql -c "CREATE DATABASE finance_test OWNER finance_test;"
+```
+
+Then `uv run pytest` runs the full suite. The `db_engine` fixture drops and
+rebuilds the schema once per pytest session, so reruns are idempotent.
+
 ## Repository layout
 
 ```
@@ -76,7 +103,7 @@ finance-tracker/
 ├── frontend/          React 18 + Vite 5 + TypeScript + Tailwind v4
 ├── supabase/
 │   ├── migrations/    plain-SQL migrations, applied alphabetically on first DB boot
-│   └── seed.sql       categories + merchant rule-pack (filled in Phase 2)
+│   └── seed.sql       categories + merchant rule-pack
 ├── design/            decision-locked design docs — source of truth
 ├── docker-compose.yml dev-only stack (db + backend + frontend)
 └── .env.example       every required env var documented
