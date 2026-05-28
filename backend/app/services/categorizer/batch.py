@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import logging
+import structlog
 from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,7 +20,7 @@ from .prompts import (
 )
 from .types import CategorizationResult
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 async def categorize(
