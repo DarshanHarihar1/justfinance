@@ -1,11 +1,16 @@
 import type {
+  AnswerOut,
   BulkCategorize,
   CategoryOut,
+  DashboardOut,
+  InsightsOut,
   MeOut,
+  MoMOut,
   PaginatedTransactions,
   ParsedSummary,
   StatementOut,
   TransactionOut,
+  TrendOut,
 } from "@/types/api";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
@@ -102,5 +107,33 @@ export const api = {
 
   categories: {
     list: () => request<CategoryOut[]>("/api/categories"),
+  },
+
+  analytics: {
+    dashboard: (month: number, year: number) =>
+      request<DashboardOut>(`/api/analytics/dashboard/${month}/${year}`),
+    mom: () => request<MoMOut>("/api/analytics/mom"),
+    trends: (categoryId: number, from?: string, to?: string) => {
+      const q = new URLSearchParams();
+      if (from) q.set("from", from);
+      if (to) q.set("to", to);
+      const qs = q.toString();
+      return request<TrendOut>(
+        `/api/analytics/trends/${categoryId}${qs ? `?${qs}` : ""}`,
+      );
+    },
+    insights: (body: { month: number; year: number }, force = false) =>
+      request<InsightsOut>(
+        `/api/analytics/insights${force ? "?force=true" : ""}`,
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+        },
+      ),
+    ask: (body: { question: string; month: number; year: number }) =>
+      request<AnswerOut>("/api/analytics/ask", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
   },
 };
