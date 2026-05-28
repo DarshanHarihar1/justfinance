@@ -10,16 +10,16 @@ before touching code.
 
 ## Status
 
-Phase 4 (categorization engine) — in progress. Rule-pack + structural rules +
-OpenRouter batch fallback; upload API not wired yet.
+Phase 5 (backend API) — in progress. Password auth, statement upload pipeline,
+and CRUD routes for transactions, categories, and mappings.
 
 | Phase | Doc | Status |
 |------:|------|--------|
 | 1 | [`01-infrastructure-setup.md`](./design/01-infrastructure-setup.md) | done |
 | 2 | [`02-database-schema.md`](./design/02-database-schema.md) | done |
 | 3 | [`03-pdf-parser.md`](./design/03-pdf-parser.md) | done |
-| 4 | [`04-categorization-engine.md`](./design/04-categorization-engine.md) | in progress |
-| 5 | [`05-backend-api.md`](./design/05-backend-api.md) | not started |
+| 4 | [`04-categorization-engine.md`](./design/04-categorization-engine.md) | done |
+| 5 | [`05-backend-api.md`](./design/05-backend-api.md) | in progress |
 | 6 | [`06-frontend.md`](./design/06-frontend.md) | not started |
 | 7 | [`07-analytics-dashboard.md`](./design/07-analytics-dashboard.md) | not started |
 | 8 | [`08-deployment-polish.md`](./design/08-deployment-polish.md) | not started |

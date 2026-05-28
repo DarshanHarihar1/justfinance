@@ -43,6 +43,12 @@ class Settings(BaseSettings):
         description="Key for signing session cookies. Must be >=32 chars in prod.",
     )
     session_max_age: int = Field(default=60 * 60 * 24 * 30, description="Seconds.")
+    session_cookie_name: str = Field(default="ft_session")
+    cookie_samesite: Literal["lax", "none"] = Field(default="lax")
+    cookie_secure: bool = Field(
+        default=False,
+        description="Set True in prod (HTTPS). Required when cookie_samesite is none.",
+    )
 
     # ── OpenRouter ─────────────────────────────────────────────────────────
     openrouter_api_key: str = Field(default="", description="sk-or-v1-...")

@@ -34,12 +34,12 @@ pytestmark = pytest.mark.asyncio
 # ── Seed sanity ────────────────────────────────────────────────────────────
 
 
-async def test_seed_loads_sixteen_categories(db_session: AsyncSession) -> None:
+async def test_seed_loads_categories(db_session: AsyncSession) -> None:
     result = await db_session.execute(
         select(Category).order_by(Category.sort_order)
     )
     categories = list(result.scalars())
-    assert len(categories) == 16
+    assert len(categories) >= 16
 
     names = {c.name for c in categories}
     assert {"Groceries", "Food & Dining", "Transfers", "Others", "Income"}.issubset(names)

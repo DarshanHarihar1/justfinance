@@ -23,25 +23,19 @@ from urllib.parse import urlparse
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
+from passlib.hash import bcrypt
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     create_async_engine,
 )
 
-from app.main import app
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-MIGRATIONS_DIR = REPO_ROOT / "supabase" / "migrations"
-SEED_FILE = REPO_ROOT / "supabase" / "seed.sql"
+os.environ.setdefault("SESSION_SECRET", "test-session-secret-with-sufficient-length")
+os.environ.setdefault("APP_PASSWORD_HASH", bcrypt.hash("test-password"))
 
 DEFAULT_TEST_DATABASE_URL = (
     "postgresql+asyncpg://finance_test:finance_test@127.0.0.1:5432/finance_test"
 )
-
-
-def _test_database_url() -> str:
-    return os.environ.get("TEST_DATABASE_URL", DEFAULT_TEST_DATABASE_URL)
 
 
 def _postgres_reachable(url: str) -> bool:
@@ -53,6 +47,22 @@ def _postgres_reachable(url: str) -> bool:
             return True
     except OSError:
         return False
+
+
+if _postgres_reachable(DEFAULT_TEST_DATABASE_URL):
+    os.environ["DATABASE_URL"] = DEFAULT_TEST_DATABASE_URL
+
+from app.main import app  # noqa: E402
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+MIGRATIONS_DIR = REPO_ROOT / "supabase" / "migrations"
+SEED_FILE = REPO_ROOT / "supabase" / "seed.sql"
+
+TEST_PASSWORD = "test-password"
+
+
+def _test_database_url() -> str:
+    return os.environ.get("TEST_DATABASE_URL", DEFAULT_TEST_DATABASE_URL)
 
 
 async def _apply_sql_script(engine: AsyncEngine, sql: str) -> None:
@@ -73,6 +83,22 @@ async def _apply_sql_script(engine: AsyncEngine, sql: str) -> None:
 def client() -> Iterator[TestClient]:
     with TestClient(app) as c:
         yield c
+
+
+@pytest.fixture()
+def auth_client(client: TestClient) -> TestClient:
+    response = client.post("/api/auth/login", json={"password": TEST_PASSWORD})
+    assert response.status_code == 204
+    return client
+
+
+@pytest.fixture()
+def requires_postgres() -> None:
+    if not _postgres_reachable(_test_database_url()):
+        pytest.skip(
+            f"Postgres not reachable at {_test_database_url()}; "
+            "set TEST_DATABASE_URL or start the local cluster."
+        )
 
 
 # ── DB fixtures ─────────────────────────────────────────────────────────────
