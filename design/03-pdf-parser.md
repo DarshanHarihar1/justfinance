@@ -11,7 +11,13 @@
 
 ## 3.1 PhonePe statement format — observed
 
-After running `pdfplumber.extract_text()` on the sample PDF, every page has this shape:
+PhonePe statements are a **four-column table** (Date | Transaction Details | Type |
+Amount). Naive `pdfplumber.extract_text()` merges columns horizontally; the
+implementation uses `extract_words()` with x-coordinate column buckets (see
+`backend/app/services/pdf_parser/extract.py`). The logical block shape below is
+what you get after column splitting.
+
+After column-aware extraction on the sample PDF, every page has this shape:
 
 ```
 Transaction Statement for +919900475117          ← page 1 only, header
@@ -432,9 +438,9 @@ Required test cases:
 
 ```python
 def test_parses_known_count():
-    # Expected count from the sample fixture, hand-counted from the PDF: 116
+    # Expected count from the sample fixture, hand-counted from the PDF: 139
     result = parse_phonepe_pdf(_load_fixture())
-    assert len(result.transactions) == 116
+    assert len(result.transactions) == 139
 
 def test_period_extracted():
     result = parse_phonepe_pdf(_load_fixture())
@@ -489,7 +495,7 @@ def test_idempotent_on_reparse():
     assert [astuple(t) for t in a.transactions] == [astuple(t) for t in b.transactions]
 ```
 
-The exact expected count (116) must be verified once on the real PDF before this test is finalized.
+The exact expected count (139) is verified against `backend/tests/fixtures/phonepe_sample.pdf`.
 
 ## 3.8 Definition of done
 
