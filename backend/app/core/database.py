@@ -11,6 +11,7 @@ SQLAlchemy and asyncpg prepared-statement caches, or asyncpg will raise
 """
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from typing import Any
 
 from sqlalchemy.ext.asyncio import (
@@ -48,3 +49,9 @@ async_session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
     expire_on_commit=False,
     class_=AsyncSession,
 )
+
+
+async def get_db() -> AsyncIterator[AsyncSession]:
+    """Yield a request-scoped async session."""
+    async with async_session_factory() as session:
+        yield session

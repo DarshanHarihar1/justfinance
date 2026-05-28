@@ -1,10 +1,8 @@
-"""Password verification + session-cookie signing primitives.
-
-Phase 1 only ships the building blocks; the actual auth middleware and login
-routes are wired in Phase 5 (``05-backend-api.md``). Keeping this module pure
-(no FastAPI imports) lets us unit-test it in isolation later.
-"""
+"""Password verification + session-cookie signing primitives."""
 from __future__ import annotations
+
+import json
+import time
 
 from itsdangerous import BadSignature, SignatureExpired, TimestampSigner
 from passlib.context import CryptContext
@@ -23,18 +21,23 @@ def verify_password(plain_password: str, password_hash: str) -> bool:
 
 
 def _signer() -> TimestampSigner:
-    return TimestampSigner(get_settings().session_secret)
+    return TimestampSigner(get_settings().session_secret, salt="ft-session")
 
 
-def sign_session(value: str) -> str:
-    """Sign a payload (e.g. a user id sentinel) into an opaque cookie value."""
-    return _signer().sign(value.encode()).decode()
+def create_session_token() -> str:
+    """Sign a trivial session payload ``{v, iat}`` for the auth cookie."""
+    payload = json.dumps({"v": 1, "iat": int(time.time())})
+    return _signer().sign(payload.encode()).decode()
 
 
-def unsign_session(token: str) -> str | None:
-    """Return the original payload, or ``None`` if invalid/expired."""
+def validate_session_token(token: str) -> bool:
     settings = get_settings()
     try:
-        return _signer().unsign(token, max_age=settings.session_max_age).decode()
+        raw = _signer().unsign(token, max_age=settings.session_max_age).decode()
     except (BadSignature, SignatureExpired):
-        return None
+        return False
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return False
+    return data.get("v") == 1
