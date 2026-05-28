@@ -10,15 +10,15 @@ before touching code.
 
 ## Status
 
-Phase 3 (PDF parser) — in progress. PhonePe deterministic parser with fixture
-tests; categorizer and upload API not wired yet.
+Phase 4 (categorization engine) — in progress. Rule-pack + structural rules +
+OpenRouter batch fallback; upload API not wired yet.
 
 | Phase | Doc | Status |
 |------:|------|--------|
 | 1 | [`01-infrastructure-setup.md`](./design/01-infrastructure-setup.md) | done |
 | 2 | [`02-database-schema.md`](./design/02-database-schema.md) | done |
-| 3 | [`03-pdf-parser.md`](./design/03-pdf-parser.md) | in progress |
-| 4 | [`04-categorization-engine.md`](./design/04-categorization-engine.md) | not started |
+| 3 | [`03-pdf-parser.md`](./design/03-pdf-parser.md) | done |
+| 4 | [`04-categorization-engine.md`](./design/04-categorization-engine.md) | in progress |
 | 5 | [`05-backend-api.md`](./design/05-backend-api.md) | not started |
 | 6 | [`06-frontend.md`](./design/06-frontend.md) | not started |
 | 7 | [`07-analytics-dashboard.md`](./design/07-analytics-dashboard.md) | not started |
@@ -70,11 +70,11 @@ pnpm dev
 
 ### Running the tests
 
-The parser suite (`test_pdf_parser`) and other non-DB tests run with no setup:
+The parser and categorizer unit suites run with no setup:
 
 ```bash
 cd backend
-uv run pytest tests/test_pdf_parser.py -q
+uv run pytest tests/test_pdf_parser.py tests/test_categorizer_decision.py tests/test_openrouter.py -q
 ```
 
 The remaining non-DB suites (`test_healthz`, `test_config`, `test_normalize`) also run with
