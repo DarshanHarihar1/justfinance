@@ -6,10 +6,10 @@ so the rest of the app can call it cheaply.
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -55,7 +55,12 @@ class Settings(BaseSettings):
     openrouter_app_url: str = Field(default="http://localhost:5173")
 
     # ── HTTP ───────────────────────────────────────────────────────────────
-    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
+    # ``NoDecode`` opts out of pydantic-settings' default JSON parsing for complex
+    # types, so a comma-separated string in CORS_ORIGINS is split by the
+    # validator below instead of being interpreted as JSON.
+    cors_origins: Annotated[list[str], NoDecode] = Field(
+        default_factory=lambda: ["http://localhost:5173"],
+    )
 
     # ── Logging ────────────────────────────────────────────────────────────
     log_format: Literal["console", "json"] = Field(default="console")
@@ -64,7 +69,6 @@ class Settings(BaseSettings):
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_cors_origins(cls, value: object) -> object:
-        """Allow CORS_ORIGINS to be a comma-separated string in env files."""
         if isinstance(value, str):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
