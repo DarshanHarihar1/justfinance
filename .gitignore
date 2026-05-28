@@ -1,0 +1,36 @@
+# ─── Secrets / local env ────────────────────────────────────────
+# Cover .env, .env.local, .env.test, .env.<anything>; allow .env.example only.
+.env
+.env.*
+!.env.example
+*.local.env
+
+# ─── Python ─────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.python-version
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+coverage/
+.coverage
+.coverage.*
+htmlcov/
+
+# ─── Node / frontend ────────────────────────────────────────────
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# ─── Docker / DB volumes (in case anyone mounts locally) ────────
+pgdata/
+
+# ─── OS / editors ───────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
