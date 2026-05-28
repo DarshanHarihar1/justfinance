@@ -54,7 +54,11 @@ async function request<T>(
   });
 
   if (res.status === 401 && !path.startsWith("/api/auth/login")) {
-    window.location.assign("/login");
+    // Don't hard-redirect when already on /login — Login calls /api/auth/me on
+    // mount; a reload loop there blinks the screen and blocks password input.
+    if (window.location.pathname !== "/login") {
+      window.location.assign("/login");
+    }
     throw new ApiError(401, null);
   }
 
