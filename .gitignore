@@ -1,0 +1,35 @@
+# ─── Secrets / local env ────────────────────────────────────────
+.env
+.env.local
+*.local.env
+.env.*.local
+
+# ─── Python ─────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.python-version
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+coverage/
+.coverage
+.coverage.*
+htmlcov/
+
+# ─── Node / frontend ────────────────────────────────────────────
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# ─── Docker / DB volumes (in case anyone mounts locally) ────────
+pgdata/
+
+# ─── OS / editors ───────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

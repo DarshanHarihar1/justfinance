@@ -1,0 +1,136 @@
+# Finance Tracker
+
+Self-hosted, single-user personal finance tracker. Upload PhonePe monthly
+statement PDFs, auto-categorize transactions with a rule-pack + LLM fallback,
+and browse monthly dashboards and trends.
+
+The design is the source of truth — start at [`design/README.md`](./design/README.md)
+and read [`design/00-architecture-overview.md`](./design/00-architecture-overview.md)
+before touching code.
+
+## Status
+
+Phase 1 (infrastructure) — in progress. No business logic yet; this repo currently
+boots a Postgres + FastAPI + Vite stack with a health endpoint.
+
+| Phase | Doc | Status |
+|------:|------|--------|
+| 1 | [`01-infrastructure-setup.md`](./design/01-infrastructure-setup.md) | in progress |
+| 2 | [`02-database-schema.md`](./design/02-database-schema.md) | not started |
+| 3 | [`03-pdf-parser.md`](./design/03-pdf-parser.md) | not started |
+| 4 | [`04-categorization-engine.md`](./design/04-categorization-engine.md) | not started |
+| 5 | [`05-backend-api.md`](./design/05-backend-api.md) | not started |
+| 6 | [`06-frontend.md`](./design/06-frontend.md) | not started |
+| 7 | [`07-analytics-dashboard.md`](./design/07-analytics-dashboard.md) | not started |
+| 8 | [`08-deployment-polish.md`](./design/08-deployment-polish.md) | not started |
+
+## Local development
+
+Prerequisites: Docker + Docker Compose.
+
+```bash
+cp .env.example .env
+
+# Generate real values for the two secrets:
+python -c "import secrets; print(secrets.token_urlsafe(48))"      # SESSION_SECRET
+python -c "from passlib.hash import bcrypt; print(bcrypt.hash('your-password'))"  # APP_PASSWORD_HASH
+
+docker compose up --build
+```
+
+Then:
+
+- Backend health: <http://localhost:8000/healthz>
+- Frontend: <http://localhost:5173>
+- Postgres: `localhost:5432` (user `postgres` / pw `postgres` / db `finance`)
+
+To reset the database (drops the volume, re-runs migrations + seed):
+
+```bash
+docker compose down -v && docker compose up
+```
+
+### Running the backend without Docker
+
+```bash
+cd backend
+uv sync
+uv run uvicorn app.main:app --reload --port 8000
+```
+
+Requires a Postgres reachable via `DATABASE_URL`.
+
+### Running the frontend without Docker
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+## Repository layout
+
+```
+finance-tracker/
+├── backend/           FastAPI app (Python 3.12, SQLAlchemy async, asyncpg)
+├── frontend/          React 18 + Vite 5 + TypeScript + Tailwind v4
+├── supabase/
+│   ├── migrations/    plain-SQL migrations, applied alphabetically on first DB boot
+│   └── seed.sql       categories + merchant rule-pack (filled in Phase 2)
+├── design/            decision-locked design docs — source of truth
+├── docker-compose.yml dev-only stack (db + backend + frontend)
+└── .env.example       every required env var documented
+```
+
+## Production setup
+
+These steps are run **once** against the live Supabase + Render + Vercel + OpenRouter
+accounts. None of the resulting values are committed; they live in dashboard envs
+and (locally) a password manager.
+
+### Supabase (Postgres)
+
+1. In the Supabase dashboard, **New project**. Note the project ref and database password.
+2. Open **Project Settings → Database → Connection Pooling**.
+3. Copy the **Transaction** mode connection string (port `6543`, not direct `5432`).
+4. Convert the scheme: replace `postgresql://` with `postgresql+asyncpg://`. The
+   final URL looks like
+   `postgresql+asyncpg://postgres.<ref>:<pw>@aws-0-<region>.pooler.supabase.com:6543/postgres`.
+5. In Render, set `DATABASE_URL` to that URL and `DATABASE_IS_POOLED=true`.
+   The backend's engine factory uses this flag to switch to `NullPool` and
+   disable prepared statements — required against Supavisor.
+6. Apply migrations: open the Supabase SQL editor and paste each
+   `supabase/migrations/000N_*.sql` in order, then `supabase/seed.sql`.
+   (Alternative: `supabase db push` if you wire up the CLI.)
+
+Free-tier quirk: projects auto-pause after 7 days of inactivity. The first request
+after a pause cold-starts the project; subsequent requests are normal.
+
+### OpenRouter (LLM)
+
+1. Sign up at <https://openrouter.ai>. Free tier needs no credit card.
+2. **Keys → Create Key.** Store as `OPENROUTER_API_KEY` in Render.
+3. **Settings → Privacy** — decide whether to opt into prompt logging by free
+   providers. Phase 4 only sends merchant strings to the LLM (no amounts, no
+   full transaction descriptions), but a one-time review here is sensible.
+
+Free-tier limits in effect (May 2026): 20 req/min, 50 req/day under $10
+lifetime credits. The categorization design (Phase 4) is built around these caps.
+
+### Render (backend)
+
+1. New **Web Service** → connect this repo → root directory `backend/`.
+2. Set environment variables from `.env.example` (notably `DATABASE_URL`,
+   `DATABASE_IS_POOLED=true`, `APP_PASSWORD_HASH`, `SESSION_SECRET`,
+   `OPENROUTER_*`, `CORS_ORIGINS=https://<your-vercel-domain>`).
+3. Build & run commands are baked into `backend/Dockerfile`.
+
+### Vercel (frontend)
+
+1. New project → import this repo → root directory `frontend/`.
+2. Set `VITE_API_URL` to the Render backend URL.
+3. Framework preset: **Vite**.
+
+## License
+
+See [`LICENSE`](./LICENSE).
