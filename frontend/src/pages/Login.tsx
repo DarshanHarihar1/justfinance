@@ -3,6 +3,7 @@ import { FormEvent, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 import { ApiError, api } from "@/lib/api";
+import { queryClient } from "@/lib/query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -19,7 +20,10 @@ export default function Login() {
 
   const login = useMutation({
     mutationFn: () => api.auth.login(password),
-    onSuccess: () => navigate("/upload", { replace: true }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      navigate("/upload", { replace: true });
+    },
     onError: (err) => {
       if (err instanceof ApiError) {
         if (err.status === 401) setError("Incorrect password.");

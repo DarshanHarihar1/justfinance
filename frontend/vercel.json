@@ -1,3 +1,16 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://justfinance.onrender.com/api/:path*"
+    },
+    {
+      "source": "/healthz",
+      "destination": "https://justfinance.onrender.com/healthz"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
