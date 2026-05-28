@@ -19,7 +19,16 @@ import type {
   TrendOut,
 } from "@/types/api";
 
-const BASE = (import.meta.env.VITE_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
+/** Dev: direct to localhost. Prod: same-origin via vercel.json rewrites (first-party cookies). */
+function resolveApiBase(): string {
+  if (!import.meta.env.DEV) {
+    return "";
+  }
+  const raw = import.meta.env.VITE_API_URL;
+  return (raw?.trim() || "http://localhost:8000").replace(/\/+$/, "");
+}
+
+const BASE = resolveApiBase();
 
 export class ApiError extends Error {
   constructor(
