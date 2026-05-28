@@ -1,12 +1,37 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
 
-/*
- * Phase 1: minimal global styles. The design system (CSS variables, color
- * tokens, typography scale) is defined in Phase 6 — see design/06-frontend.md.
- */
+@theme {
+  --color-bg: #fafaf9;
+  --color-bg-elevated: #ffffff;
+  --color-bg-muted: #f4f4f2;
+  --color-border: #e7e5e0;
+  --color-border-strong: #d6d3cb;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b6b67;
+  --color-text-subtle: #94948f;
+  --color-accent: #1f6f6a;
+  --color-accent-soft: #d8ebe9;
+  --color-danger: #b0413e;
+  --color-warning: #b58a1f;
+  --color-success: #4f7a3a;
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+}
 
 :root {
   color-scheme: light;
+}
+
+html {
+  font-feature-settings: "tnum" 1, "cv11" 1;
+  background: var(--color-bg);
 }
 
 html,
@@ -16,14 +41,21 @@ body,
 }
 
 body {
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    "Helvetica Neue",
-    Arial,
-    sans-serif;
   margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark {
+  --color-bg: #111110;
+  --color-bg-elevated: #1b1b1a;
+  --color-bg-muted: #191918;
+  --color-border: #2a2a28;
+  --color-border-strong: #3a3a37;
+  --color-text: #ededea;
+  --color-text-muted: #a0a09b;
+  --color-text-subtle: #6c6c67;
+  --color-accent: #5aaea7;
+  --color-accent-soft: #1b3a37;
 }

@@ -10,8 +10,8 @@ before touching code.
 
 ## Status
 
-Phase 5 (backend API) — in progress. Password auth, statement upload pipeline,
-and CRUD routes for transactions, categories, and mappings.
+Phase 6 (frontend) — done. Login, upload, review flows with React Router and
+TanStack Query. Dashboard, analytics, and settings are placeholders for later phases.
 
 | Phase | Doc | Status |
 |------:|------|--------|
@@ -19,8 +19,8 @@ and CRUD routes for transactions, categories, and mappings.
 | 2 | [`02-database-schema.md`](./design/02-database-schema.md) | done |
 | 3 | [`03-pdf-parser.md`](./design/03-pdf-parser.md) | done |
 | 4 | [`04-categorization-engine.md`](./design/04-categorization-engine.md) | done |
-| 5 | [`05-backend-api.md`](./design/05-backend-api.md) | in progress |
-| 6 | [`06-frontend.md`](./design/06-frontend.md) | not started |
+| 5 | [`05-backend-api.md`](./design/05-backend-api.md) | done |
+| 6 | [`06-frontend.md`](./design/06-frontend.md) | done |
 | 7 | [`07-analytics-dashboard.md`](./design/07-analytics-dashboard.md) | not started |
 | 8 | [`08-deployment-polish.md`](./design/08-deployment-polish.md) | not started |
 
