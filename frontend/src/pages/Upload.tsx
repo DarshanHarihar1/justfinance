@@ -9,11 +9,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError, api } from "@/lib/api";
 import { formatPeriod, formatRelativeTime } from "@/lib/currency";
 import type { ParsedSummary } from "@/types/api";
+import { usePrefetchDashboard } from "@/hooks/usePrefetchDashboard";
 import { queryClient } from "@/lib/query";
 
 type UploadPhase = "idle" | "uploading" | "done" | "error";
 
 export default function Upload() {
+  usePrefetchDashboard();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<UploadPhase>("idle");
   const [result, setResult] = useState<ParsedSummary | null>(null);

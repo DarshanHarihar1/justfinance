@@ -66,3 +66,74 @@ export type ApiErrorBody = {
   error?: string;
   message?: string;
 };
+
+export type DashboardTotals = {
+  income: string;
+  expense: string;
+  net: string;
+  txn_count: number;
+};
+
+export type CategoryBreakdown = {
+  category_id: number;
+  name: string;
+  color: string;
+  total: string;
+  txn_count: number;
+  pct_of_expense: number;
+};
+
+export type TopMerchant = {
+  merchant_normalized: string;
+  total: string;
+  txn_count: number;
+  category_id: number;
+};
+
+export type DashboardOut = {
+  month: number;
+  year: number;
+  totals: DashboardTotals;
+  by_category: CategoryBreakdown[];
+  top_merchants: TopMerchant[];
+  recent_transactions: TransactionOut[];
+  needs_review_count: number;
+};
+
+export type MoMMonth = {
+  month: number;
+  year: number;
+  label: string;
+  income: string;
+  expense: string;
+  net: string;
+};
+
+export type MoMOut = { months: MoMMonth[] };
+
+export type TrendOut = {
+  category: { id: number; name: string; color: string };
+  months: Array<{ year: number; month: number; total: string; txn_count: number }>;
+  top_merchants: Array<{ merchant_normalized: string; total: string }>;
+};
+
+export type InsightItem = {
+  title: string;
+  body: string;
+  severity: "info" | "good" | "concern";
+};
+
+export type InsightsOut = {
+  generated_at: string;
+  model: string;
+  insights: InsightItem[];
+};
+
+export type AnswerOut = {
+  answer: string;
+  context_used: {
+    month: number;
+    year: number;
+    aggregations: string[];
+  };
+};

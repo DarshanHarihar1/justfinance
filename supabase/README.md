@@ -5,6 +5,7 @@ This directory is the source of truth for the database schema. It contains:
 | File | Purpose |
 |------|---------|
 | `migrations/0001_initial.sql` | Phase 2 schema. Tables, indexes, CHECK constraints, FKs, the `set_updated_at()` plpgsql function, and the two `BEFORE UPDATE` triggers that depend on it. |
+| `migrations/0002_views.sql` | Phase 7 analytics view `v_spend` (reviewed, non-excluded transactions). |
 | `seed.sql` | Default categories (16) and merchant rule-pack (100 patterns). Idempotent — every insert uses `ON CONFLICT DO NOTHING`. |
 
 ## Local dev

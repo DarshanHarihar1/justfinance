@@ -10,8 +10,8 @@ before touching code.
 
 ## Status
 
-Phase 6 (frontend) — done. Login, upload, review flows with React Router and
-TanStack Query. Dashboard, analytics, and settings are placeholders for later phases.
+Phase 7 (analytics) — done. `v_spend` view, dashboard/MoM/trends API, LLM insights
+and ask, plus Dashboard and Analytics pages with Recharts.
 
 | Phase | Doc | Status |
 |------:|------|--------|
@@ -21,7 +21,7 @@ TanStack Query. Dashboard, analytics, and settings are placeholders for later ph
 | 4 | [`04-categorization-engine.md`](./design/04-categorization-engine.md) | done |
 | 5 | [`05-backend-api.md`](./design/05-backend-api.md) | done |
 | 6 | [`06-frontend.md`](./design/06-frontend.md) | done |
-| 7 | [`07-analytics-dashboard.md`](./design/07-analytics-dashboard.md) | not started |
+| 7 | [`07-analytics-dashboard.md`](./design/07-analytics-dashboard.md) | done |
 | 8 | [`08-deployment-polish.md`](./design/08-deployment-polish.md) | not started |
 
 ## Local development

@@ -11,6 +11,7 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { api } from "@/lib/api";
 import { formatDate, formatINRDetailed, formatTime } from "@/lib/currency";
 import type { TransactionOut } from "@/types/api";
+import { usePrefetchDashboard } from "@/hooks/usePrefetchDashboard";
 import { queryClient } from "@/lib/query";
 
 type RowDraft = {
@@ -21,6 +22,7 @@ type RowDraft = {
 };
 
 export default function Review() {
+  usePrefetchDashboard();
   const { statementId } = useParams<{ statementId: string }>();
   const id = Number(statementId);
   const navigate = useNavigate();

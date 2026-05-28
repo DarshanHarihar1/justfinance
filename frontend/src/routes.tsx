@@ -6,6 +6,8 @@ import Login from "@/pages/Login";
 import Upload from "@/pages/Upload";
 import Review from "@/pages/Review";
 import ReviewHub from "@/pages/ReviewHub";
+import Dashboard from "@/pages/Dashboard";
+import Analytics from "@/pages/Analytics";
 import { Placeholder } from "@/pages/Placeholder";
 
 export const router = createBrowserRouter([
@@ -20,14 +22,8 @@ export const router = createBrowserRouter([
           { path: "/upload", element: <Upload /> },
           { path: "/review", element: <ReviewHub /> },
           { path: "/review/:statementId", element: <Review /> },
-          {
-            path: "/dashboard",
-            element: <Placeholder title="Dashboard" phase="Phase 7" />,
-          },
-          {
-            path: "/analytics",
-            element: <Placeholder title="Analytics" phase="Phase 7" />,
-          },
+          { path: "/dashboard", element: <Dashboard /> },
+          { path: "/analytics", element: <Analytics /> },
           {
             path: "/settings",
             element: <Placeholder title="Settings" phase="Phase 8" />,
