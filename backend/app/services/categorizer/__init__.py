@@ -1,10 +1,14 @@
-"""Categorization service.
-
-Phase 2 ships only the merchant normalizer (used both by the seeded rule-pack
-and, eventually, by the runtime categorization pipeline). Phase 4 will add
-``categorize()``, ``categorize_batch()``, and the OpenRouter LLM fallback in
-this same package.
-"""
+"""Categorization service — rule-pack, structural rules, and OpenRouter fallback."""
+from .batch import categorize, categorize_batch
 from .normalize import collapse_trailing_code, normalize
+from .own_accounts import detect_own_account_last4s
+from .types import CategorizationResult
 
-__all__ = ["collapse_trailing_code", "normalize"]
+__all__ = [
+    "CategorizationResult",
+    "categorize",
+    "categorize_batch",
+    "collapse_trailing_code",
+    "detect_own_account_last4s",
+    "normalize",
+]
