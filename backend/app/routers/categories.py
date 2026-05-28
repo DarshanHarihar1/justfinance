@@ -8,14 +8,17 @@ from app.core.deps import db_session
 from app.core.exceptions import conflict, not_found
 from app.models import Category, MerchantMapping, Transaction
 from app.schemas.category import CategoryCreate, CategoryOut, CategoryPatch
+from app.services.category_counts import category_to_out, mapping_counts_by_category
 
 router = APIRouter()
 
 
 @router.get("", response_model=list[CategoryOut])
-async def list_categories(db: AsyncSession = Depends(db_session)) -> list[Category]:
+async def list_categories(db: AsyncSession = Depends(db_session)) -> list[CategoryOut]:
     result = await db.execute(select(Category).order_by(Category.sort_order, Category.name))
-    return list(result.scalars().all())
+    categories = list(result.scalars().all())
+    counts = await mapping_counts_by_category(db)
+    return [category_to_out(c, mapping_count=counts.get(c.id, 0)) for c in categories]
 
 
 @router.post("", response_model=CategoryOut, status_code=201)
@@ -36,7 +39,7 @@ async def create_category(
     db.add(category)
     await db.commit()
     await db.refresh(category)
-    return category
+    return category_to_out(category, mapping_count=0)
 
 
 @router.patch("/{category_id}", response_model=CategoryOut)
@@ -60,7 +63,8 @@ async def patch_category(
         category.sort_order = body.sort_order
     await db.commit()
     await db.refresh(category)
-    return category
+    counts = await mapping_counts_by_category(db)
+    return category_to_out(category, mapping_count=counts.get(category.id, 0))
 
 
 @router.delete("/{category_id}", status_code=204)

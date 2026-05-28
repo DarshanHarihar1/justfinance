@@ -45,6 +45,48 @@ export type CategoryOut = {
   is_system: boolean;
   excluded_from_spending: boolean;
   sort_order: number;
+  mapping_count: number;
+};
+
+export type CategoryCreate = {
+  name: string;
+  color?: string;
+  icon?: string;
+  excluded_from_spending?: boolean;
+  sort_order?: number;
+};
+
+export type CategoryPatch = {
+  name?: string;
+  color?: string;
+  icon?: string;
+  excluded_from_spending?: boolean;
+  sort_order?: number;
+};
+
+export type MappingOut = {
+  id: number;
+  merchant_pattern: string;
+  category_id: number;
+  source: string;
+  confidence: number | string | null;
+  times_used: number;
+  last_used_at: string | null;
+};
+
+export type MappingCreate = {
+  merchant_pattern: string;
+  category_id: number;
+};
+
+export type MappingPatch = {
+  merchant_pattern?: string;
+  category_id?: number;
+};
+
+export type PaginatedMappings = {
+  items: MappingOut[];
+  total: number;
 };
 
 export type BulkCategorizeItem = {

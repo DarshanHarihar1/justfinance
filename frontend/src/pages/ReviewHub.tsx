@@ -31,7 +31,7 @@ export default function ReviewHub() {
     <div>
       <PageHeader
         title="Review"
-        description="No transactions need your input right now."
+        description="You're all caught up. 🎉"
       />
       <Link to="/upload" className="text-sm text-[--color-accent] hover:underline">
         Back to upload

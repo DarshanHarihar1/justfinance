@@ -42,11 +42,11 @@ export function NavRail() {
         Finance
       </div>
       <div className="flex flex-1 flex-col gap-1 px-2">
-        <NavLink to="/upload" className={navClass} end>
+        <NavLink to="/upload" className={navClass} end aria-label="Upload">
           <Upload className="h-5 w-5 shrink-0" strokeWidth={1.5} />
           <span className="hidden md:inline">Upload</span>
         </NavLink>
-        <NavLink to="/review" className={navClass}>
+        <NavLink to="/review" className={navClass} aria-label="Review">
           <span className="relative">
             <ListTodo className="h-5 w-5 shrink-0" strokeWidth={1.5} />
             {reviewCount > 0 ? (
@@ -57,21 +57,22 @@ export function NavRail() {
           </span>
           <span className="hidden md:inline">Review</span>
         </NavLink>
-        <NavLink to="/dashboard" className={navClass}>
+        <NavLink to="/dashboard" className={navClass} aria-label="Dashboard">
           <LayoutDashboard className="h-5 w-5 shrink-0" strokeWidth={1.5} />
           <span className="hidden md:inline">Dashboard</span>
         </NavLink>
-        <NavLink to="/analytics" className={navClass}>
+        <NavLink to="/analytics" className={navClass} aria-label="Analytics">
           <LineChart className="h-5 w-5 shrink-0" strokeWidth={1.5} />
           <span className="hidden md:inline">Analytics</span>
         </NavLink>
-        <NavLink to="/settings" className={navClass}>
+        <NavLink to="/settings" className={navClass} aria-label="Settings">
           <Settings className="h-5 w-5 shrink-0" strokeWidth={1.5} />
           <span className="hidden md:inline">Settings</span>
         </NavLink>
       </div>
       <button
         type="button"
+        aria-label="Log out"
         onClick={() => void logout()}
         className="mx-2 mt-4 flex flex-col items-center gap-1 rounded-[--radius-md] px-2 py-2 text-[10px] text-[--color-text-muted] hover:bg-[--color-bg-muted] md:flex-row md:gap-2 md:px-3 md:text-xs"
       >

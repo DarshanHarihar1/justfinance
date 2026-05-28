@@ -13,6 +13,7 @@ class CategoryOut(BaseModel):
     is_system: bool
     excluded_from_spending: bool
     sort_order: int
+    mapping_count: int = 0
 
 
 class CategoryCreate(BaseModel):

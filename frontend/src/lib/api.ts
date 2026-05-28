@@ -1,11 +1,17 @@
 import type {
   AnswerOut,
   BulkCategorize,
+  CategoryCreate,
   CategoryOut,
+  CategoryPatch,
   DashboardOut,
   InsightsOut,
+  MappingCreate,
+  MappingOut,
+  MappingPatch,
   MeOut,
   MoMOut,
+  PaginatedMappings,
   PaginatedTransactions,
   ParsedSummary,
   StatementOut,
@@ -47,12 +53,24 @@ async function request<T>(
     headers,
   });
 
+  if (res.status === 401 && !path.startsWith("/api/auth/login")) {
+    window.location.assign("/login");
+    throw new ApiError(401, null);
+  }
+
   if (res.status === 204) return undefined as T;
 
   const body = await res.json().catch(() => null);
   if (!res.ok) throw new ApiError(res.status, body);
   return body as T;
 }
+
+function apiMessage(err: ApiError): string {
+  const body = err.body as { message?: string } | null;
+  return body?.message ?? "Something went wrong. Try again.";
+}
+
+export { apiMessage };
 
 export const api = {
   healthz: () => request<{ status: string }>("/healthz"),
@@ -107,6 +125,62 @@ export const api = {
 
   categories: {
     list: () => request<CategoryOut[]>("/api/categories"),
+    create: (body: CategoryCreate) =>
+      request<CategoryOut>("/api/categories", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    patch: (id: number, body: CategoryPatch) =>
+      request<CategoryOut>(`/api/categories/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      }),
+    delete: (id: number, moveTo?: number) => {
+      const q = moveTo != null ? `?move_to=${moveTo}` : "";
+      return request<void>(`/api/categories/${id}${q}`, { method: "DELETE" });
+    },
+  },
+
+  mappings: {
+    list: (params: Record<string, string | number | undefined>) => {
+      const q = new URLSearchParams();
+      for (const [k, v] of Object.entries(params)) {
+        if (v !== undefined && v !== "") q.set(k, String(v));
+      }
+      return request<PaginatedMappings>(`/api/mappings?${q}`);
+    },
+    create: (body: MappingCreate) =>
+      request<MappingOut>("/api/mappings", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    patch: (id: number, body: MappingPatch) =>
+      request<MappingOut>(`/api/mappings/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      }),
+    delete: (id: number) =>
+      request<void>(`/api/mappings/${id}`, { method: "DELETE" }),
+  },
+
+  exportTransactionsCsv: async (params?: { from?: string; to?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.from) q.set("from", params.from);
+    if (params?.to) q.set("to", params.to);
+    const qs = q.toString();
+    const res = await fetch(
+      `${BASE}/api/transactions/export.csv${qs ? `?${qs}` : ""}`,
+      { credentials: "include" },
+    );
+    if (res.status === 401) {
+      window.location.assign("/login");
+      throw new ApiError(401, null);
+    }
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new ApiError(res.status, body);
+    }
+    return res.blob();
   },
 
   analytics: {

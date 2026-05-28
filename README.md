@@ -10,8 +10,10 @@ before touching code.
 
 ## Status
 
-Phase 7 (analytics) — done. `v_spend` view, dashboard/MoM/trends API, LLM insights
-and ask, plus Dashboard and Analytics pages with Recharts.
+Phase 8 (deployment & polish) — done in code. Settings (categories, mappings,
+CSV export, theme), CSV streaming export, polish pass, and `vercel.json`. Production
+deploy to Render + Vercel + Supabase is manual — see [Production setup](#production-setup)
+and [`design/08-deployment-polish.md`](./design/08-deployment-polish.md) §8.6 smoke test.
 
 | Phase | Doc | Status |
 |------:|------|--------|
@@ -22,7 +24,7 @@ and ask, plus Dashboard and Analytics pages with Recharts.
 | 5 | [`05-backend-api.md`](./design/05-backend-api.md) | done |
 | 6 | [`06-frontend.md`](./design/06-frontend.md) | done |
 | 7 | [`07-analytics-dashboard.md`](./design/07-analytics-dashboard.md) | done |
-| 8 | [`08-deployment-polish.md`](./design/08-deployment-polish.md) | not started |
+| 8 | [`08-deployment-polish.md`](./design/08-deployment-polish.md) | done (deploy manual) |
 
 ## Local development
 
@@ -156,14 +158,21 @@ lifetime credits. The categorization design (Phase 4) is built around these caps
 1. New **Web Service** → connect this repo → root directory `backend/`.
 2. Set environment variables from `.env.example` (notably `DATABASE_URL`,
    `DATABASE_IS_POOLED=true`, `APP_PASSWORD_HASH`, `SESSION_SECRET`,
+   `COOKIE_SAMESITE=none`, `COOKIE_SECURE=true`,
    `OPENROUTER_*`, `CORS_ORIGINS=https://<your-vercel-domain>`).
 3. Build & run commands are baked into `backend/Dockerfile`.
+4. Health check path: `/healthz`.
 
 ### Vercel (frontend)
 
 1. New project → import this repo → root directory `frontend/`.
 2. Set `VITE_API_URL` to the Render backend URL.
-3. Framework preset: **Vite**.
+3. Framework preset: **Vite**. SPA routing is configured in `frontend/vercel.json`.
+
+### Post-deploy smoke test
+
+After deploy, run through [`design/08-deployment-polish.md`](./design/08-deployment-polish.md) §8.6:
+login → upload sample PDF → review → settings mapping → dashboard → analytics → logout.
 
 ## License
 
