@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/*
+ * Phase 1: minimal global styles. The design system (CSS variables, color
+ * tokens, typography scale) is defined in Phase 6 — see design/06-frontend.md.
+ */
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  margin: 0;
+}
