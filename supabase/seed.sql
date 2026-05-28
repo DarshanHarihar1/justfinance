@@ -10,7 +10,7 @@
 -- app.services.categorizer.normalize.normalize(); a Phase 2 test enforces this.
 
 -- ──────────────────────────────────────────────
--- Categories (16 total)
+-- Categories (18 total)
 -- ──────────────────────────────────────────────
 INSERT INTO categories (name, color, icon, is_system, excluded_from_spending, sort_order) VALUES
     ('Groceries',     '#4CAF50', '🛒', FALSE, FALSE, 10),
@@ -21,7 +21,9 @@ INSERT INTO categories (name, color, icon, is_system, excluded_from_spending, so
     ('Subscriptions', '#673AB7', '📺', FALSE, FALSE, 55),
     ('Healthcare',    '#00BCD4', '🏥', FALSE, FALSE, 60),
     ('Shopping',      '#FF5722', '🛍️', FALSE, FALSE, 70),
+    ('Sports & Fitness','#8BC34A', '🏸', FALSE, FALSE, 72),
     ('Personal Care', '#F06292', '💇', FALSE, FALSE, 75),
+    ('Home Services', '#8D6E63', '🧹', FALSE, FALSE, 78),
     ('Fuel',          '#795548', '⛽', FALSE, FALSE, 80),
     ('Rent & Bills',  '#3F51B5', '🏠', FALSE, FALSE, 85),
     ('Investments',   '#607D8B', '📈', FALSE, FALSE, 90),
@@ -63,6 +65,7 @@ FROM (VALUES
     ('FRESHTOHOME',                     'Groceries'),
     ('COUNTRY DELIGHT',                 'Groceries'),
     ('MILKBASKET',                      'Groceries'),
+    ('CTRLX TECHNOLOGIES',              'Groceries'),
 
     -- Cafes & food chains
     ('STARBUCKS',                       'Food & Dining'),
@@ -82,6 +85,14 @@ FROM (VALUES
     ('A1 FOODS',                        'Food & Dining'),
     ('MTR',                             'Food & Dining'),
     ('SAMOSA',                          'Food & Dining'),
+    ('SWISH',                           'Food & Dining'),
+    ('MUNCHMART TECHNOLOGIES',          'Food & Dining'),
+    ('KAMAT CAFE & PASTRIES',           'Food & Dining'),
+    ('MEGHANA FOODS SARJAPURA',         'Food & Dining'),
+    ('CHAI KAPPI',                      'Food & Dining'),
+    ('THYME AND WHISK',                 'Food & Dining'),
+    ('BIG MISHRA PEDHA',                'Food & Dining'),
+    ('BIG MISHRA SWEET INN',            'Food & Dining'),
 
     -- Transport
     ('BMTC',                            'Transport'),
@@ -99,6 +110,7 @@ FROM (VALUES
     ('HP PETROL PUMP',                  'Fuel'),
     ('BHARAT PETROLEUM',                'Fuel'),
     ('SHELL',                           'Fuel'),
+    ('S C NAREGAL',                     'Fuel'),
 
     -- Bills / FASTag
     ('FASTAG',                          'Transport'),
@@ -151,6 +163,13 @@ FROM (VALUES
     ('URBANCOMPANY',                    'Personal Care'),
     ('RENTOMOJO',                       'Rent & Bills'),
     ('FURLENCO',                        'Rent & Bills'),
+    ('DIVJOT',                          'Rent & Bills'),
+
+    -- Sports & fitness
+    ('******1492',                      'Sports & Fitness'),
+
+    -- Home services (maid, cook, domestic help)
+    ('DEV DHAMI',                       'Home Services'),
 
     -- Cash withdrawal / banking
     ('SBI ATM',                         'Cash Withdrawal'),
