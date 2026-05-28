@@ -4,6 +4,7 @@ import calendar
 import datetime as dt
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,13 +18,37 @@ from app.schemas.transaction import (
     TransactionOut,
     TransactionPatch,
 )
+from app.services.export_csv import iter_transactions_csv
 
 router = APIRouter()
+
+
+def _parse_date_param(value: str | None) -> dt.date | None:
+    if value is None:
+        return None
+    return dt.date.fromisoformat(value)
 
 
 def _month_bounds(month: int, year: int) -> tuple[dt.date, dt.date]:
     last_day = calendar.monthrange(year, month)[1]
     return dt.date(year, month, 1), dt.date(year, month, last_day)
+
+
+@router.get("/transactions/export.csv")
+async def export_transactions_csv(
+    from_date: str | None = Query(default=None, alias="from"),
+    to_date: str | None = Query(default=None, alias="to"),
+    db: AsyncSession = Depends(db_session),
+) -> StreamingResponse:
+    start = _parse_date_param(from_date)
+    end = _parse_date_param(to_date)
+    stamp = dt.date.today().isoformat()
+    filename = f"transactions-{stamp}.csv"
+    return StreamingResponse(
+        iter_transactions_csv(db, from_date=start, to_date=end),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.get("/transactions", response_model=PaginatedTransactions)
