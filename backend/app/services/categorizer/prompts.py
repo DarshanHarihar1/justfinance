@@ -30,8 +30,13 @@ def build_user_prompt(merchants: list[str]) -> str:
     )
 
 
-def build_response_schema(category_names: tuple[str, ...]) -> dict[str, Any]:
-    count = len(category_names)
+def build_response_schema(
+    category_names: tuple[str, ...],
+    *,
+    merchant_count: int,
+) -> dict[str, Any]:
+    """JSON schema for one LLM batch — one result per merchant, not per category."""
+    count = min(max(merchant_count, 1), LLM_BATCH_SIZE)
     return {
         "type": "object",
         "additionalProperties": False,

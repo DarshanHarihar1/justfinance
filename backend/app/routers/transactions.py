@@ -10,7 +10,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import db_session
-from app.core.exceptions import not_found
+from app.core.exceptions import not_found, unprocessable, unprocessable
 from app.models import MerchantMapping, Transaction
 from app.schemas.transaction import (
     BulkCategorize,
@@ -53,8 +53,8 @@ async def export_transactions_csv(
 
 @router.get("/transactions", response_model=PaginatedTransactions)
 async def list_transactions(
-    month: int | None = None,
-    year: int | None = None,
+    month: int | None = Query(default=None, ge=1, le=12),
+    year: int | None = Query(default=None, ge=2000, le=2100),
     category_id: int | None = None,
     needs_review: bool | None = None,
     type: str | None = Query(default=None, alias="type"),
@@ -63,6 +63,11 @@ async def list_transactions(
     page_size: int = Query(default=50, ge=1, le=200),
     db: AsyncSession = Depends(db_session),
 ) -> PaginatedTransactions:
+    if (month is None) != (year is None):
+        raise unprocessable(
+            "invalid_month_filter",
+            "month and year must both be provided when filtering by month",
+        )
     query = select(Transaction)
     if month is not None and year is not None:
         start, end = _month_bounds(month, year)

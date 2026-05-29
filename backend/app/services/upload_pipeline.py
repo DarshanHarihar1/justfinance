@@ -72,7 +72,11 @@ async def ingest_statement(
 
     results: list = []
     if new_txns:
-        if not llm.enabled:
+        if not llm.enabled and await any_transactions_need_llm(
+            new_txns,
+            own_account_last4s=own_last4s,
+            db=db,
+        ):
             warnings.append("llm_disabled")
         results = await categorize_batch(
             new_txns,

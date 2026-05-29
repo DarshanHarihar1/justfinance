@@ -22,6 +22,29 @@ from .types import CategorizationResult
 
 log = structlog.get_logger(__name__)
 
+async def any_transactions_need_llm(
+    txns: list[ParsedTransaction],
+    *,
+    own_account_last4s: set[str],
+    db: AsyncSession,
+) -> bool:
+    if not txns:
+        return False
+    catalog = await load_category_catalog(db)
+    mapping_index = await load_mapping_index(db)
+    for txn in txns:
+        if (
+            resolve_without_llm(
+                txn,
+                own_account_last4s=own_account_last4s,
+                catalog=catalog,
+                mapping_index=mapping_index,
+            )
+            is None
+        ):
+            return True
+    return False
+
 
 async def categorize(
     txn: ParsedTransaction,
@@ -118,10 +141,10 @@ async def _run_llm_batches(
         return
 
     system = build_system_prompt(catalog.names)
-    schema = build_response_schema(catalog.names)
 
     for offset in range(0, len(merchants), LLM_BATCH_SIZE):
         chunk = merchants[offset : offset + LLM_BATCH_SIZE]
+        schema = build_response_schema(catalog.names, merchant_count=len(chunk))
         try:
             response = await llm.chat_json(
                 system=system,

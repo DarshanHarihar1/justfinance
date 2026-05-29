@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import db_session, get_llm
@@ -26,8 +26,8 @@ router = APIRouter()
 
 @router.get("/dashboard/{month}/{year}", response_model=DashboardOut)
 async def dashboard(
-    month: int,
-    year: int,
+    month: int = Path(ge=1, le=12),
+    year: int = Path(ge=2000, le=2100),
     db: AsyncSession = Depends(db_session),
 ) -> DashboardOut:
     return await get_dashboard(db, month=month, year=year)
