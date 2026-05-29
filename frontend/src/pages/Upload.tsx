@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Dropzone } from "@/components/upload/Dropzone";
@@ -14,12 +14,15 @@ import { queryClient } from "@/lib/query";
 
 type UploadPhase = "idle" | "uploading" | "done" | "error";
 
+const MAX_GATEWAY_RETRIES = 3;
+
 export default function Upload() {
   usePrefetchDashboard();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<UploadPhase>("idle");
   const [result, setResult] = useState<ParsedSummary | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const gatewayRetryRef = useRef(0);
 
   useEffect(() => {
     void api.healthz().catch(() => {
@@ -38,6 +41,7 @@ export default function Upload() {
       setPhase("uploading");
       setErrorMessage(null);
       setResult(null);
+      gatewayRetryRef.current = 0;
     },
     onSuccess: (data) => {
       setResult(data);
@@ -47,6 +51,14 @@ export default function Upload() {
     },
     onError: async (err, file) => {
       if (err instanceof ApiError && (err.status === 502 || err.status === 504)) {
+        if (gatewayRetryRef.current >= MAX_GATEWAY_RETRIES) {
+          setPhase("error");
+          setErrorMessage(
+            "The backend did not wake up in time. Wait a minute and try again.",
+          );
+          return;
+        }
+        gatewayRetryRef.current += 1;
         setErrorMessage("Waking up the backend… this takes about a minute the first time.");
         await new Promise((r) => setTimeout(r, 60_000));
         upload.mutate(file);
@@ -85,7 +97,7 @@ export default function Upload() {
 
       {phase === "uploading" ? (
         <p className="mt-4 text-sm text-[--color-text-muted]">
-          Parsing PDF and categorizing transactions…
+          {errorMessage ?? "Parsing PDF and categorizing transactions…"}
         </p>
       ) : null}
 

@@ -6,6 +6,7 @@ from .types import CategorizationResult
 
 __all__ = [
     "CategorizationResult",
+    "any_transactions_need_llm",
     "categorize",
     "categorize_batch",
     "collapse_trailing_code",
