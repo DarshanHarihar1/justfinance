@@ -48,6 +48,12 @@ export default function Upload() {
       setPhase("done");
       void queryClient.invalidateQueries({ queryKey: ["statements"] });
       void queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["transactions", "needs_review_count"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["transactions", "needs_review_hub"],
+      });
     },
     onError: async (err, file) => {
       if (err instanceof ApiError && (err.status === 502 || err.status === 504)) {

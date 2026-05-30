@@ -73,6 +73,12 @@ export default function Review() {
       toast.success(`${drafts.length} transactions categorized.`);
       void queryClient.invalidateQueries({ queryKey: ["transactions"] });
       void queryClient.invalidateQueries({ queryKey: ["statements"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["transactions", "needs_review_count"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["transactions", "needs_review_hub"],
+      });
       navigate("/upload");
     },
     onError: () => {

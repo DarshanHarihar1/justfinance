@@ -6,7 +6,7 @@ from decimal import Decimal
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import not_found
+from app.core.exceptions import not_found, unprocessable
 from app.models import Category
 from app.schemas.analytics import (
     TrendCategory,
@@ -24,8 +24,14 @@ def _dec_str(value: Decimal) -> str:
 
 
 def _parse_month_param(value: str) -> tuple[int, int]:
-    year_s, month_s = value.split("-", 1)
-    return int(year_s), int(month_s)
+    try:
+        parsed = dt.date.fromisoformat(f"{value}-01")
+    except ValueError as exc:
+        raise unprocessable(
+            "invalid_date_range",
+            f"Invalid month parameter: {value!r} (expected YYYY-MM)",
+        ) from exc
+    return parsed.year, parsed.month
 
 
 async def get_trend(

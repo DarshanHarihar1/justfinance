@@ -89,6 +89,32 @@ async def test_rate_limit_retries_then_succeeds(monkeypatch: pytest.MonkeyPatch)
 
 
 @pytest.mark.asyncio
+async def test_malformed_json_raises_openrouter_error() -> None:
+    def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {"message": {"content": "not-json"}},
+                ]
+            },
+        )
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport, base_url="https://openrouter.test") as http:
+        client = OpenRouterClient(
+            api_key="k",
+            base_url="https://openrouter.test",
+            model="m",
+            app_name="app",
+            app_url="http://x",
+            client=http,
+        )
+        with pytest.raises(OpenRouterError, match="not valid JSON"):
+            await client.chat_json(system="s", user="u", schema={"type": "object"})
+
+
+@pytest.mark.asyncio
 async def test_rate_limit_exhausted_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     async def _noop_sleep(_: float) -> None:
         return None

@@ -1,6 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";
-import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -16,12 +15,20 @@ const severityDot: Record<InsightItem["severity"], string> = {
 };
 
 export function InsightsSection({ monthYear }: { monthYear: MonthYear }) {
-  const { mutate, isPending, data, mutate: regenerate } = useMutation({
-    mutationFn: (force: boolean) =>
-      api.analytics.insights(
-        { month: monthYear.month, year: monthYear.year },
-        force,
-      ),
+  const queryClient = useQueryClient();
+  const { month, year } = monthYear;
+
+  const { data, isPending, isFetching } = useQuery({
+    queryKey: ["analytics", "insights", year, month],
+    queryFn: () => api.analytics.insights({ month, year }, false),
+    staleTime: 60_000,
+  });
+
+  const regenerate = useMutation({
+    mutationFn: () => api.analytics.insights({ month, year }, true),
+    onSuccess: (result) => {
+      queryClient.setQueryData(["analytics", "insights", year, month], result);
+    },
     onError: (err) => {
       if (err instanceof ApiError && err.status === 503) {
         toast.error("Insights need an OpenRouter API key on the backend.");
@@ -31,9 +38,8 @@ export function InsightsSection({ monthYear }: { monthYear: MonthYear }) {
     },
   });
 
-  useEffect(() => {
-    mutate(false);
-  }, [monthYear.month, monthYear.year, mutate]);
+  const loading = isPending || (isFetching && !data);
+  const busy = loading || regenerate.isPending;
 
   return (
     <section>
@@ -43,15 +49,15 @@ export function InsightsSection({ monthYear }: { monthYear: MonthYear }) {
         </h2>
         <Button
           variant="ghost"
-          disabled={isPending}
-          onClick={() => regenerate(true)}
+          disabled={busy}
+          onClick={() => regenerate.mutate()}
         >
           <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
           Regenerate
         </Button>
       </div>
 
-      {isPending && !data ? (
+      {loading ? (
         <div className="space-y-3">
           <Skeleton className="h-20 w-full" />
           <Skeleton className="h-20 w-full" />

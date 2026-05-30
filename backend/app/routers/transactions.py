@@ -10,8 +10,8 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import db_session
-from app.core.exceptions import not_found, unprocessable, unprocessable
-from app.models import MerchantMapping, Transaction
+from app.core.exceptions import not_found, unprocessable
+from app.models import Category, MerchantMapping, Transaction
 from app.schemas.transaction import (
     BulkCategorize,
     PaginatedTransactions,
@@ -26,7 +26,10 @@ router = APIRouter()
 def _parse_date_param(value: str | None) -> dt.date | None:
     if value is None:
         return None
-    return dt.date.fromisoformat(value)
+    try:
+        return dt.date.fromisoformat(value)
+    except ValueError as exc:
+        raise unprocessable("invalid_date", f"Invalid date: {value!r}") from exc
 
 
 def _month_bounds(month: int, year: int) -> tuple[dt.date, dt.date]:
@@ -115,6 +118,9 @@ async def bulk_categorize(
         txn = await db.get(Transaction, item.transaction_id)
         if txn is None:
             raise not_found("transaction")
+        category = await db.get(Category, item.category_id)
+        if category is None:
+            raise not_found("category")
 
         txn.category_id = item.category_id
         txn.is_manually_categorized = True
@@ -169,6 +175,9 @@ async def patch_transaction(
         raise not_found("transaction")
 
     if body.category_id is not None:
+        category = await db.get(Category, body.category_id)
+        if category is None:
+            raise not_found("category")
         txn.category_id = body.category_id
         txn.is_manually_categorized = True
         txn.needs_review = False
