@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,10 @@ type Turn = { question: string; answer: string };
 export function AskSection({ monthYear }: { monthYear: MonthYear }) {
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
+
+  useEffect(() => {
+    setTurns([]);
+  }, [monthYear.month, monthYear.year]);
 
   const ask = useMutation({
     mutationFn: (q: string) =>

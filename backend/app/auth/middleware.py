@@ -11,6 +11,7 @@ _ALLOWLIST: frozenset[tuple[str, str]] = frozenset(
     {
         ("GET", "/healthz"),
         ("POST", "/api/auth/login"),
+        ("POST", "/api/auth/logout"),
     }
 )
 

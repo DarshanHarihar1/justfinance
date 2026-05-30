@@ -1,8 +1,8 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import type { MonthYear } from "@/hooks/useSelectedMonth";
+import { shiftMonth, type MonthYear } from "@/hooks/useSelectedMonth";
 import { api } from "@/lib/api";
 import { formatINR, parseAmount } from "@/lib/currency";
 import { cn } from "@/lib/cn";
@@ -23,8 +23,21 @@ function Sparkline({ values }: { values: number[] }) {
   );
 }
 
+function monthParam({ month, year }: MonthYear): string {
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
 export function CategoryTrendList({ monthYear }: { monthYear: MonthYear }) {
   const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const trendWindow = useMemo(() => {
+    const from = shiftMonth(monthYear, -11);
+    return { from: monthParam(from), to: monthParam(monthYear) };
+  }, [monthYear.month, monthYear.year]);
+
+  useEffect(() => {
+    setExpandedId(null);
+  }, [monthYear.month, monthYear.year]);
 
   const dashboard = useQuery({
     queryKey: ["analytics", "dashboard", monthYear.year, monthYear.month],
@@ -35,8 +48,15 @@ export function CategoryTrendList({ monthYear }: { monthYear: MonthYear }) {
 
   const trends = useQueries({
     queries: categories.map((c) => ({
-      queryKey: ["analytics", "trends", c.category_id],
-      queryFn: () => api.analytics.trends(c.category_id),
+      queryKey: [
+        "analytics",
+        "trends",
+        c.category_id,
+        trendWindow.from,
+        trendWindow.to,
+      ],
+      queryFn: () =>
+        api.analytics.trends(c.category_id, trendWindow.from, trendWindow.to),
       staleTime: 60_000,
     })),
   });

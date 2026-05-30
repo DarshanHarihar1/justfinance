@@ -46,6 +46,7 @@ export type CategoryOut = {
   excluded_from_spending: boolean;
   sort_order: number;
   mapping_count: number;
+  transaction_count: number;
 };
 
 export type CategoryCreate = {

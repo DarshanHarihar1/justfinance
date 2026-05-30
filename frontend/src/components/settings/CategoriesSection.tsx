@@ -103,7 +103,10 @@ export function CategoriesSection() {
   }
 
   const dialogOpen = createOpen || editTarget !== null;
-  const needsMove = Boolean(deleteTarget && deleteTarget.mapping_count > 0);
+  const needsMove = Boolean(
+    deleteTarget &&
+      (deleteTarget.mapping_count > 0 || deleteTarget.transaction_count > 0),
+  );
 
   return (
     <section>

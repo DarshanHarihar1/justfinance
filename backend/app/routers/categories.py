@@ -8,7 +8,11 @@ from app.core.deps import db_session
 from app.core.exceptions import conflict, not_found
 from app.models import Category, MerchantMapping, Transaction
 from app.schemas.category import CategoryCreate, CategoryOut, CategoryPatch
-from app.services.category_counts import category_to_out, mapping_counts_by_category
+from app.services.category_counts import (
+    category_to_out,
+    mapping_counts_by_category,
+    transaction_counts_by_category,
+)
 
 router = APIRouter()
 
@@ -17,8 +21,16 @@ router = APIRouter()
 async def list_categories(db: AsyncSession = Depends(db_session)) -> list[CategoryOut]:
     result = await db.execute(select(Category).order_by(Category.sort_order, Category.name))
     categories = list(result.scalars().all())
-    counts = await mapping_counts_by_category(db)
-    return [category_to_out(c, mapping_count=counts.get(c.id, 0)) for c in categories]
+    mapping_counts = await mapping_counts_by_category(db)
+    txn_counts = await transaction_counts_by_category(db)
+    return [
+        category_to_out(
+            c,
+            mapping_count=mapping_counts.get(c.id, 0),
+            transaction_count=txn_counts.get(c.id, 0),
+        )
+        for c in categories
+    ]
 
 
 @router.post("", response_model=CategoryOut, status_code=201)
@@ -39,7 +51,7 @@ async def create_category(
     db.add(category)
     await db.commit()
     await db.refresh(category)
-    return category_to_out(category, mapping_count=0)
+    return category_to_out(category, mapping_count=0, transaction_count=0)
 
 
 @router.patch("/{category_id}", response_model=CategoryOut)
@@ -51,7 +63,10 @@ async def patch_category(
     category = await db.get(Category, category_id)
     if category is None:
         raise not_found("category")
-    if body.name is not None:
+    if body.name is not None and body.name != category.name:
+        existing = await db.execute(select(Category).where(Category.name == body.name))
+        if existing.scalar_one_or_none() is not None:
+            raise conflict("duplicate_category", f"Category '{body.name}' already exists.")
         category.name = body.name
     if body.color is not None:
         category.color = body.color
@@ -63,8 +78,13 @@ async def patch_category(
         category.sort_order = body.sort_order
     await db.commit()
     await db.refresh(category)
-    counts = await mapping_counts_by_category(db)
-    return category_to_out(category, mapping_count=counts.get(category.id, 0))
+    mapping_counts = await mapping_counts_by_category(db)
+    txn_counts = await transaction_counts_by_category(db)
+    return category_to_out(
+        category,
+        mapping_count=mapping_counts.get(category.id, 0),
+        transaction_count=txn_counts.get(category.id, 0),
+    )
 
 
 @router.delete("/{category_id}", status_code=204)

@@ -79,8 +79,15 @@ class OpenRouterClient:
             "temperature": 0,
         }
         body = await self._post_with_retries("/chat/completions", payload)
-        content = body["choices"][0]["message"]["content"]
-        parsed = json.loads(content)
+        try:
+            choices = body["choices"]
+            content = choices[0]["message"]["content"]
+        except (KeyError, IndexError, TypeError) as exc:
+            raise OpenRouterError("OpenRouter response missing message content") from exc
+        try:
+            parsed = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise OpenRouterError("OpenRouter response content is not valid JSON") from exc
         if not isinstance(parsed, dict):
             raise OpenRouterError("OpenRouter response JSON root is not an object")
         return parsed

@@ -14,6 +14,7 @@ class CategoryOut(BaseModel):
     excluded_from_spending: bool
     sort_order: int
     mapping_count: int = 0
+    transaction_count: int = 0
 
 
 class CategoryCreate(BaseModel):
